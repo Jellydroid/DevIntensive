@@ -36,4 +36,6 @@
     <dimen name="font_medium_45sp">45sp</dimen>
     <dimen name="font_large_56sp">56sp</dimen>
     <dimen name="font_larger_112sp">112sp</dimen>
+    <dimen name="size_big_72">72dp</dimen>
+    <dimen name="line_size">1dp</dimen>
 </resources>
