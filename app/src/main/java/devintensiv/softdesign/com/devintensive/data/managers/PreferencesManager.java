@@ -2,11 +2,14 @@ package devintensiv.softdesign.com.devintensive.data.managers;
 
 
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import devintensiv.softdesign.com.devintensive.R;
+import devintensiv.softdesign.com.devintensive.ui.activities.MainActivity;
 import devintensiv.softdesign.com.devintensive.utils.ConstantManager;
 import devintensiv.softdesign.com.devintensive.utils.DevIntensiveApplication;
 
@@ -47,5 +50,15 @@ public class PreferencesManager {
         userFields.add(mSharedPreferences.getString(ConstantManager.USER_BIO_KEY,
                 DataManager.getInstance().getContext().getResources().getString(R.string.about_me)));
         return userFields;
+    }
+
+    public void saveUserPhoto(Uri uri){
+        SharedPreferences.Editor editor =  mSharedPreferences.edit();
+        editor.putString(ConstantManager.USER_PHOTO_KEY, uri.toString());
+        editor.apply();
+    }
+
+    public Uri loadUserPhoto(){
+       return Uri.parse(mSharedPreferences.getString(ConstantManager.USER_PHOTO_KEY,  "android.resource://devintensiv.softdesign.com.devintensive/drawable/user_bg"));
     }
 }
