@@ -1,12 +1,12 @@
 package devintensiv.softdesign.com.devintensive.ui.activities;
 
 import android.app.Dialog;
-import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -29,12 +29,14 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -44,8 +46,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.jar.Manifest;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import devintensiv.softdesign.com.devintensive.R;
 import devintensiv.softdesign.com.devintensive.data.managers.DataManager;
 import devintensiv.softdesign.com.devintensive.utils.ConstantManager;
@@ -58,51 +61,48 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private DataManager mDataManager;
     private int mCurrentEditMode = 0;
 
-    private ImageView mCallImg, mAvatarImg, mGitImg, mMailImg, mVkImg;
-    private CoordinatorLayout mCoordinatorLayout;
-    private Toolbar mToolbar;
-    private DrawerLayout mNavigationDrawer;
-    private FloatingActionButton mFab;
-    private EditText mUserPhone, mUserMail, mUserVk, mUserGit, mUserBio;
-    private NavigationView mNavigationView;
-    private RelativeLayout mProfilePlaceholder;
-    private CollapsingToolbarLayout mCollapsingToolbar;
-    private AppBarLayout mAppBarLayout;
-    private ImageView mProfileImage;
+    @BindView(R.id.call_img) ImageView mCallImg;
+    @BindView(R.id.mail_img) ImageView mMailImg;
+    @BindView(R.id.vk_img) ImageView mVkImg;
+    @BindView(R.id.git_img) ImageView mGitImg;
+    @BindView(R.id.user_photo_img) ImageView mProfileImage;
+
+    @BindView(R.id.phone_et) EditText mUserPhone;
+    @BindView(R.id.email_et) EditText mUserMail;
+    @BindView(R.id.profile_vk_et) EditText mUserVk;
+    @BindView(R.id.repository_et) EditText mUserGit;
+    @BindView(R.id.about_me_et) EditText mUserBio;
+
+    @BindView(R.id.user_info_rait_txt) TextView mUserValueRating;
+    @BindView(R.id.user_info_code_lines_txt) TextView mUserValueCodeLines;
+    @BindView(R.id.user_info_projects_txt) TextView mUserValueProjects;
+
+    @BindView(R.id.main_coordinator_container) CoordinatorLayout mCoordinatorLayout;
+    @BindView(R.id.toolbar) Toolbar mToolbar;
+    @BindView(R.id.navigation_drawer) DrawerLayout mNavigationDrawer;
+    @BindView(R.id.fab) FloatingActionButton mFab;
+    @BindView(R.id.navigation_view) NavigationView mNavigationView;
+    @BindView(R.id.profile_placeholder) RelativeLayout mProfilePlaceholder;
+    @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbar;
+    @BindView(R.id.appbar_layout) AppBarLayout mAppBarLayout;
 
     private List<EditText> mUserInfoViews;
+    private List<TextView> mUserValueViews;
 
     private AppBarLayout.LayoutParams mAppBarParams = null;
     private File mPhotoFile = null;
     private Uri mSelectedImage = null;
+    private ImageView mAvatarImg;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         Log.d(TAG, "onCreate");
 
-
         mDataManager = DataManager.getInstance();
-        mCallImg = (ImageView) findViewById(R.id.call_img);
-        mMailImg = (ImageView) findViewById(R.id.mail_img);
-        mVkImg = (ImageView) findViewById(R.id.vk_img);
-        mGitImg = (ImageView) findViewById(R.id.git_img);
-        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinator_container);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        mNavigationDrawer = (DrawerLayout) findViewById(R.id.navigation_drawer);
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mUserPhone = (EditText) findViewById(R.id.phone_et);
-        mUserMail = (EditText) findViewById(R.id.email_et);
-        mUserVk = (EditText) findViewById(R.id.profile_vk_et);
-        mUserGit = (EditText) findViewById(R.id.repository_et);
-        mUserBio = (EditText) findViewById(R.id.about_me_et);
-        mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
-        mProfilePlaceholder = (RelativeLayout) findViewById(R.id.profile_placeholder);
-        mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar_layout);
-        mProfileImage = (ImageView) findViewById(R.id.user_photo_img);
 
         mUserInfoViews = new ArrayList<>();
         mUserInfoViews.add(mUserPhone);
@@ -110,6 +110,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         mUserInfoViews.add(mUserVk);
         mUserInfoViews.add(mUserGit);
         mUserInfoViews.add(mUserBio);
+
+        mUserValueViews = new ArrayList<>();
+        mUserValueViews.add(mUserValueRating);
+        mUserValueViews.add(mUserValueCodeLines);
+        mUserValueViews.add(mUserValueProjects);
 
         mCallImg.setOnClickListener(this);
         mFab.setOnClickListener(this);
@@ -120,8 +125,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
         setupToolbar();
         setupDrawer();
-        loadUserInfoValue();
-        setRoundedAvatar();
+        initUserFields();
+        initUserInfoValue();
         Picasso.with(this)
                 .load(mDataManager.getPreferencesManager().loadUserPhoto())
                 .placeholder(R.drawable.user_photo) // сделать плейсхолдер и transform +crop
@@ -138,15 +143,69 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
-    private void setRoundedAvatar() {
-        View headerLayout = mNavigationView.getHeaderView(0);
-        mAvatarImg = (ImageView) headerLayout.findViewById(R.id.avatar_iv);
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.call_img:
+                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                    String phone = mUserPhone.getText().toString();
+                    if (!phone.equals("") || !phone.equals("null")) {
+                        Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.fromParts("tel", phone, null));
+                        startActivity(callIntent);
+                    } else {
+                        ActivityCompat.requestPermissions(this, new String[]{
+                                android.Manifest.permission.CALL_PHONE
+                        }, ConstantManager.CALL_PHONE_PERMISSION_CODE);
 
-        Bitmap bitmap = ((BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.avatar)).getBitmap();
-       /* Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.avatar);*/
-        RoundedAvatarDrawable roundedAvatarDrawable = new RoundedAvatarDrawable(bitmap);
-        mAvatarImg.setImageDrawable(roundedAvatarDrawable);
+                        Snackbar.make(mCoordinatorLayout, "Для корректной работы необходимо дать требуемые разрешения", Snackbar.LENGTH_LONG)
+                                .setAction("Разрешить", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        openApplicationSettings();
+                                    }
+                                }).show();
+                    }
+                }
+                break;
 
+            case R.id.mail_img:
+                String email = mUserMail.getText().toString();
+                if (!email.equals("") || !email.equals("null")) {
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", email, null));
+                    startActivity(Intent.createChooser(emailIntent, "Отправка письма..."));
+                }
+                break;
+
+            case R.id.vk_img:
+                String vkUrl = mUserVk.getText().toString();
+                if (!vkUrl.equals("") || !vkUrl.equals("null")) {
+                    Intent vkIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://vk.com/" + vkUrl));
+                    startActivity(vkIntent);
+                }
+                break;
+
+            case R.id.git_img:
+                String gitUrl = mUserVk.getText().toString();
+                if (!gitUrl.equals("") || !gitUrl.equals("null")) {
+                    Intent vkIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/" + gitUrl));
+                    startActivity(vkIntent);
+                }
+                break;
+
+            case R.id.fab:
+                showSnackBar("Click");
+                if (mCurrentEditMode == 1) {
+                    changeEditMode(0);
+                    mCurrentEditMode = 0;
+                } else {
+                    changeEditMode(1);
+                    mCurrentEditMode = 1;
+                }
+                break;
+            case R.id.profile_placeholder:
+                showDialog(ConstantManager.LOAD_CONSTANT_PHOTO);
+                break;
+        }
     }
 
     @Override
@@ -179,7 +238,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause");
-        saveUserInfoValue();
+        saveUserFields();
     }
 
     @Override
@@ -198,59 +257,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onRestart() {
         super.onRestart();
         Log.d(TAG, "onRestart");
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.call_img:
-                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
-                    String phone = mUserPhone.getText().toString().trim();
-                    startActivity(new Intent(Intent.ACTION_CALL, Uri.fromParts("tel",phone, null)));
-                } else {
-                    ActivityCompat.requestPermissions(this, new String[]{
-                            android.Manifest.permission.CALL_PHONE
-                    }, ConstantManager.CALL_PHONE_PERMISSION_CODE);
-
-                    Snackbar.make(mCoordinatorLayout, "Для корректной работы необходимо дать требуемые разрешения", Snackbar.LENGTH_LONG)
-                            .setAction("Разрешить", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    openApplicationSettings();
-                                }
-                            }).show();
-                }
-                break;
-
-            case R.id.mail_img:
-                String mail = mUserMail.getText().toString().trim();
-                startActivity(new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto",mail, null)));
-                break;
-
-            case R.id.vk_img:
-                String vk = mUserVk.getText().toString().trim();
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.fromParts("https://vk.com/",vk , null)));
-                break;
-
-            case R.id.git_img:
-                String git = mUserGit.getText().toString().trim();
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.fromParts("https://github.com/",git, null)));
-                break;
-
-            case R.id.fab:
-                showSnackBar("Click");
-                if (mCurrentEditMode == 1) {
-                    changeEditMode(0);
-                    mCurrentEditMode = 0;
-                } else {
-                    changeEditMode(1);
-                    mCurrentEditMode = 1;
-                }
-                break;
-            case R.id.profile_placeholder:
-                showDialog(ConstantManager.LOAD_CONSTANT_PHOTO);
-                break;
-        }
     }
 
     @Override
@@ -281,6 +287,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private void setupDrawer() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         assert navigationView != null;
+
+        setupDrawerHeader();
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
@@ -290,6 +299,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 return false;
             }
         });
+
+    }
+
+    private void setupDrawerHeader() {
+        View headerLayout = mNavigationView.getHeaderView(0);
+
+        TextView userName = (TextView) headerLayout.findViewById(R.id.user_name_txt);
+        userName.setText(mDataManager.getPreferencesManager().loadUserName());
+
+        TextView userMail = (TextView) headerLayout.findViewById(R.id.user_email_txt);
+        userMail.setText(mDataManager.getPreferencesManager().loadUserMail());
+
+        mAvatarImg = (ImageView) headerLayout.findViewById(R.id.avatar_iv);
+
+        Bitmap bitmap = ((BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.avatar)).getBitmap();
+       /* Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(),R.drawable.avatar);*/
+        RoundedAvatarDrawable roundedAvatarDrawable = new RoundedAvatarDrawable(bitmap);
+        mAvatarImg.setImageDrawable(roundedAvatarDrawable);
 
     }
 
@@ -319,7 +346,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 break;
         }
     }
-
 
     /**
      * переключает режим редактирования
@@ -351,13 +377,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 unLockToolbar();
                 mCollapsingToolbar.setExpandedTitleColor(getResources().getColor(R.color.white));
 
-                saveUserInfoValue();
+                saveUserFields();
             }
         }
     }
 
-    private void loadUserInfoValue() {
-        showSnackBar("loadUserInfoValue");
+    private void initUserFields() {
+        showSnackBar("initUserFields");
         List<String> userData = mDataManager.getPreferencesManager().loadUserProfileData();
         Log.e(TAG, userData.toString());
 
@@ -367,13 +393,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
-    private void saveUserInfoValue() {
-        showSnackBar("saveUserInfoValue");
+    private void saveUserFields() {
+        showSnackBar("saveUserFields");
         List<String> userData = new ArrayList<>();
         for (EditText userFieldView : mUserInfoViews) {
             userData.add(userFieldView.getText().toString());
         }
         mDataManager.getPreferencesManager().saveUserProfileData(userData);
+    }
+
+    private void initUserInfoValue() {
+        List <String> userData = mDataManager.getPreferencesManager().loadUserProfileValues();
+        for (int i = 0; i < userData.size(); i++) {
+            mUserValueViews.get(i).setText(userData.get(i));
+        }
     }
 
     private void runWithDelay() {
