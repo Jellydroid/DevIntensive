@@ -24,6 +24,7 @@
                 style="@style/user_info_item">
 
                 <TextView
+                    android:id="@+id/user_info_rait_txt"
                     style="@style/view.info_count"
                     android:text="@string/default_count"/>
 
@@ -40,6 +41,7 @@
                 android:layout_weight=".5">
 
                 <TextView
+                    android:id="@+id/user_info_code_lines_txt"
                     style="@style/view.info_count"
                     android:text="@string/default_count"/>
 
@@ -55,6 +57,7 @@
                 style="@style/user_info_item">
 
                 <TextView
+                    android:id="@+id/user_info_projects_txt"
                     style="@style/view.info_count"
                     android:text="@string/default_count"/>
 

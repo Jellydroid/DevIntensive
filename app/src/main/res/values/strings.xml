@@ -1,4 +1,8 @@
 <resources>
+    <!--Font Family-->
+    <string name="ff_regular">sans-serif</string>
+    <string name="ff_medium">sans-serif-medium</string>
+
     <string name="app_name">Кравченко Марина</string>
     <string name="default_count">5</string>
     <string name="rating">Рейтинг</string>
@@ -20,4 +24,13 @@
     <string name="user_profile_dialog_cancel">Отмена</string>
     <string name="user_profile_dialog_title">Изменить фотографию профиля</string>
     <string name="user_profile_choose_message">выберите фото</string>
+    <string name="user_header_name">Марина Кравченко</string>
+    <string name="user_header_email">marina_kravchenko@yahoo.com</string>
+
+    <!--Auth Activity-->
+    <string name="auth.authorization_enter">ВОЙТИ</string>
+    <string name="auth.email">E-mail</string>
+    <string name="auth.password">Пароль</string>
+    <string name="auth.login">Войти</string>
+    <string name="auth.remember">Забыли пароль?</string>
 </resources>
